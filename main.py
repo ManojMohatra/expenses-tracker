@@ -1,6 +1,10 @@
 from datetime import datetime
+import csv
+import os 
 
 def main():
+    ensure_csv_file()  #Ensures that the header and csv file exists
+
     print("welcome to expenses tracker!\n")
     print("1. Add a new expense")
     print("2. View all expenses")
@@ -23,8 +27,13 @@ def add_new_entry():
     if not date:
         date = datetime.now().strftime("%Y-%m-%d")
 
-    
 
+def ensure_csv_file():
+    filename = "expenses.csv"
+    if not os.path.isfile(filename):
+        with open(filename,mode="w",newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(["category","expense","date"])
 
 
 main()
