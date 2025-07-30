@@ -2,6 +2,7 @@ from datetime import datetime
 from tabulate import tabulate
 import csv
 import os 
+from collections import defaultdict
 
 def main():
     ensure_csv_file()  #Ensures that the header and csv file exists
@@ -26,7 +27,7 @@ def main():
 
 
 def add_new_entry():
-    category = input("Category(Food,Rent,Tution,Misc):").strip()
+    category = input("Category(Food,Rent,Tution,Misc):").strip().lower()
     expense = input("Expense(Amount):").strip()
     date = input("Date(Leave it empty to set the date to now):").strip()
     print("")
@@ -53,7 +54,10 @@ def view_all_expenses():
         reader = csv.reader(file)
         headers = next(reader)
         data = list(reader)
-        print(tabulate(data, headers=headers,tablefmt='psql'))
+        if not data:
+            print("No expenses to show")
+        else:
+            print(tabulate(data, headers=headers,tablefmt='psql'))
 
 def view_summary():
     print("View Summary:\n")
@@ -66,18 +70,32 @@ def view_summary():
 
     if choice == "1":
         print(f"The total expenses up to this point is:{total_expenses()}")
-
+    elif choice  == "2":
+        print_summary(calc_by_field("category"),["Category","Total"])
+    elif choice == "3":
+        print_summary(calc_by_field("date"),["Date","Total"])
 
 def total_expenses():
     with open("expenses.csv","r") as file:
         reader = csv.DictReader(file)
         total = 0
         for row in reader:
-            total += int(row["expense"])
+            total += float(row["expense"])
     return total 
 
 
+def calc_by_field(field):
+    totals = defaultdict(float)
+    with open("expenses.csv","r") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            field_now = row[field]
+            amount = float(row["expense"])
+            totals[field_now] += amount
+    return totals
+
+def print_summary(data,headers):
+    print(tabulate(data.items(),headers=headers,tablefmt="psql"))
 
             
-
 main()
