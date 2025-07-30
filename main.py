@@ -15,10 +15,13 @@ def main():
     print("6. Quit \n")
 
     choice  = input("What do you want to do ? ").strip()
+    print("")
     if choice  == "1":
         add_new_entry()
     elif choice == "2":
         view_all_expenses()
+    elif choice == "3":
+        view_summary()
     
 
 
@@ -51,5 +54,30 @@ def view_all_expenses():
         headers = next(reader)
         data = list(reader)
         print(tabulate(data, headers=headers,tablefmt='psql'))
+
+def view_summary():
+    print("View Summary:\n")
+    print("1. Total Expenses")
+    print("2. Expense by category")
+    print("3. Print Expense by date\n")
+
+    choice  = input("What do you want to do? ").strip()
+    print("")
+
+    if choice == "1":
+        print(f"The total expenses up to this point is:{total_expenses()}")
+
+
+def total_expenses():
+    with open("expenses.csv","r") as file:
+        reader = csv.DictReader(file)
+        total = 0
+        for row in reader:
+            total += int(row["expense"])
+    return total 
+
+
+
+            
 
 main()
