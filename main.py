@@ -27,6 +27,11 @@ def add_new_entry():
     if not date:
         date = datetime.now().strftime("%Y-%m-%d")
 
+    with open("expenses.csv",mode="a",newline="") as file:
+        writer  = csv.writer(file)
+        writer.writerow([category,expense,date])
+
+
 
 def ensure_csv_file():
     filename = "expenses.csv"
