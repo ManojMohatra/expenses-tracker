@@ -8,27 +8,33 @@ import json
 
 def main():
     ensure_csv_file()  #Ensures that the header and csv file exists
+    while True:
+        os.system("cls" if os.name == "nt" else "clear")
+        print("\nWelcome to expenses tracker!\n")
+        print("1. Add a new expense")
+        print("2. View all expenses")
+        print("3. View summary(by category,by date,total)")
+        print("4. Delete an expense")
+        print("5. Export to file (csv/json)")
+        print("6. Quit \n")
 
-    print("Welcome to expenses tracker!\n")
-    print("1. Add a new expense")
-    print("2. View all expenses")
-    print("3. View summary(by category,by date,total)")
-    print("4. Delete an expense")
-    print("5. Export to file (csv/json)")
-    print("6. Quit \n")
-
-    choice  = input("What do you want to do ? ").strip()
-    print("")
-    if choice  == "1":
-        add_new_entry()
-    elif choice == "2":
-        view_all_expenses()
-    elif choice == "3":
-        view_summary()
-    elif choice == "4":
-        delete_expense()
-    elif choice == "5":
-        export()
+        choice  = input("What do you want to do ? ").strip()
+        print("")
+        if choice  == "1":
+            add_new_entry()
+        elif choice == "2":
+            view_all_expenses()
+        elif choice == "3":
+            view_summary()
+        elif choice == "4":
+            delete_expense()
+        elif choice == "5":
+            export()
+        elif choice == "6":
+            print("Thanks for using the app.")
+            break
+        else:
+            print("Invalid Choice")
 
     
 
@@ -39,6 +45,7 @@ def add_new_entry():
         expense = float(input("Expense(Amount):").strip())
     except ValueError:
         print("Invalid expense amount.Please Enter a number")
+        wait()
         return
 
     date = input("Date(Leave it empty to set the date to now):").strip()
@@ -51,7 +58,7 @@ def add_new_entry():
         writer.writerow([category,expense,date])
 
     print(f"Added: {category} | {expense} | {date}",end="")
-
+    wait() 
 
 
 def ensure_csv_file():
@@ -70,6 +77,7 @@ def view_all_expenses():
             print("No expenses to show")
         else:
             print(tabulate(data, headers=headers,tablefmt='psql'))
+    wait()
 
 def view_summary():
     print("View Summary:\n")
@@ -82,10 +90,14 @@ def view_summary():
 
     if choice == "1":
         print(f"The total expenses up to this point is:{total_expenses()}")
+        wait()
     elif choice  == "2":
         print_summary(calc_by_field("category"),["Category","Total"])
     elif choice == "3":
         print_summary(calc_by_field("date"),["Date","Total"])
+    else:
+        print("Invalid choice")
+        wait()
 
 def total_expenses():
     with open("expenses.csv","r") as file:
@@ -108,6 +120,7 @@ def calc_by_field(field):
 
 def print_summary(data,headers):
     print(tabulate(data.items(),headers=headers,tablefmt="psql"))
+    wait()
 
 def delete_expense():
     print("1.Delete last expense added to the database.")
@@ -123,6 +136,7 @@ def delete_expense():
             delete_row(len(reader)-1,reader)
         else:
             print("Nothing to remove")
+            wait()
         
     elif choice == "2":
        for index,row in enumerate(reader):
@@ -131,6 +145,8 @@ def delete_expense():
             index = int(input("\nWhich row do you want do you want to delete? ").strip())
             if index >= len(reader) or index == 0:
                 print("Invalid row number(0 is a header)")
+                wait()
+                return
        
             delete_row(index,reader)
        except ValueError:
@@ -149,31 +165,39 @@ def delete_row(choice,reader):
                 if index != choice:
                     writer.writerow(row)
         print(f"\nDeleted: {deleted_row}",end="")
+        wait()
 
 def export():
     print("1.Export as CSV")
     print("2.Export as JSON")
     
     choice = input("\nWhat do you want to do? ").strip()
-
+    correct_choice=["1","2"]
+    if choice  not in correct_choice:
+            print("Invalid choice")
+            wait()
+            return              
     export_filename = input("What do you want your filename as? ").strip() 
     source_file = "expenses.csv"
     if os.path.exists(export_filename + ".csv") or os.path.exists(export_filename + ".json"):
-        print("That file already exists. Choose another name.")
-        return
-    elif  not export_filename.strip():
+        overwrite = input("File exists. Overwrite? (y/n): ").strip().lower()
+        if overwrite != "y":
+            print("Cancelled export.")
+            wait()
+            return
+    if  not export_filename.strip():
         print("Filename cannot be empty.")
+        wait()
         return
-    else:
-        if choice == "1":
+    if choice == "1":
             export_csv(export_filename)
             print("Export Sucessfull!")
-        elif choice == "2":
-            export_json(export_filename) 
-            print("Export Sucessfull!")
-        else:
-            print("Invalid choice")
-
+            wait()
+    else:
+        export_json(export_filename) 
+        print("Export Sucessfull!")
+        wait()
+            
 def export_csv(export_filename):
     with open("expenses.csv", "r", newline="") as source, open(export_filename + ".csv", "w", newline="") as export:
         export.write(source.read())           
@@ -187,5 +211,8 @@ def export_json(export_filename):
     with open(export_filename + ".json", "w", encoding="utf-8") as file:
         json.dump(data, file, indent=4)
 
-        
-main()
+def wait():
+    input("\nPress any key to return to main menu...")
+
+if __name__ == "__main__":    
+    main()
