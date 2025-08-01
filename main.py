@@ -4,6 +4,7 @@ import csv
 import os 
 from collections import defaultdict
 import sys
+import json
 
 def main():
     ensure_csv_file()  #Ensures that the header and csv file exists
@@ -26,6 +27,9 @@ def main():
         view_summary()
     elif choice == "4":
         delete_expense()
+    elif choice == "5":
+        export()
+
     
 
 
@@ -146,5 +150,42 @@ def delete_row(choice,reader):
                     writer.writerow(row)
         print(f"\nDeleted: {deleted_row}",end="")
 
+def export():
+    print("1.Export as CSV")
+    print("2.Export as JSON")
+    
+    choice = input("\nWhat do you want to do? ").strip()
 
+    export_filename = input("What do you want your filename as? ").strip() 
+    source_file = "expenses.csv"
+    if os.path.exists(export_filename + ".csv") or os.path.exists(export_filename + ".json"):
+        print("That file already exists. Choose another name.")
+        return
+    elif  not export_filename.strip():
+        print("Filename cannot be empty.")
+        return
+    else:
+        if choice == "1":
+            export_csv(export_filename)
+            print("Export Sucessfull!")
+        elif choice == "2":
+            export_json(export_filename) 
+            print("Export Sucessfull!")
+        else:
+            print("Invalid choice")
+
+def export_csv(export_filename):
+    with open("expenses.csv", "r", newline="") as source, open(export_filename + ".csv", "w", newline="") as export:
+        export.write(source.read())           
+
+def export_json(export_filename):
+    data = []
+    with open("expenses.csv", "r", encoding="utf-8") as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            data.append(row)
+    with open(export_filename + ".json", "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4)
+
+        
 main()
