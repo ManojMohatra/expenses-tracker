@@ -35,6 +35,7 @@ def main():
             break
         else:
             print("Invalid Choice")
+            wait()
 
     
 
@@ -47,11 +48,16 @@ def add_new_entry():
         print("Invalid expense amount.Please Enter a number")
         wait()
         return
-
-    date = input("Date(Leave it empty to set the date to now):").strip()
+    date = input("Date(Format:YYYY-MM-DD(Leave it empty to set the date to now):").strip()
     print("")
     if not date:
         date = datetime.now().strftime("%Y-%m-%d")
+    try:
+        datetime.strptime(date,"%Y-%m-%d")
+    except ValueError:
+        print("Invalid date.Please use YYYY-MM-DD(eg., 2025-02-03)")
+        wait()
+        return 
 
     with open("expenses.csv",mode="a",newline="") as file:
         writer  = csv.writer(file)
@@ -151,6 +157,8 @@ def delete_expense():
             delete_row(index,reader)
        except ValueError:
             print("Invalid input.Please enter a valid number.")
+            wait()
+            return
             
        
              
