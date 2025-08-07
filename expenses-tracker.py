@@ -6,6 +6,7 @@ from collections import defaultdict
 import sys
 import json
 # Using 'wait()' after each action to pause before returning to main menu
+CSV_FILE = "expenses.csv"
 
 def main():
     ensure_csv_file()  
