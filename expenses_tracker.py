@@ -117,8 +117,8 @@ def view_summary():
         print("Invalid choice")
         wait()
 
-def total_expenses():
-    with open("expenses.csv","r") as file:
+def total_expenses(filename="expenses.csv"):
+    with open(filename,"r") as file:
         reader = csv.DictReader(file)
         total = 0
         for row in reader:
@@ -126,9 +126,9 @@ def total_expenses():
     return total 
 
 
-def calc_by_field(field):
+def calc_by_field(field,filename="expenses.csv"):
     totals = defaultdict(float)
-    with open("expenses.csv","r") as file:
+    with open(filename,"r") as file:
         reader = csv.DictReader(file)
         for row in reader:
             field_now = row[field]
@@ -178,21 +178,20 @@ def delete_expense():
        
              
 
-def delete_row(choice,reader):
-
-        choice = int(choice)
-        deleted_row = reader[choice]
-
-        with open("expenses.csv","w",newline="") as file:
+def delete_row(choice, reader, testing=False):
+    choice = int(choice)
+    deleted_row = reader[choice]
+    updated_rows = [row for index, row in enumerate(reader) if index != choice]
+    
+    print(f"\nDeleted: {deleted_row}", end="")
+    
+    if not testing:
+        with open("expenses.csv", "w", newline="") as file:
             writer = csv.writer(file)
-
-           # Rewrite entire CSV file except the row being deleted
-
-            for index,row in enumerate(reader):
-                if index != choice:
-                    writer.writerow(row)
-        print(f"\nDeleted: {deleted_row}",end="")
+            writer.writerows(updated_rows)
         wait()
+    
+    return updated_rows, deleted_row  
 
 def export():
     print("1.Export as CSV")
