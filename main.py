@@ -5,11 +5,14 @@ import os
 from collections import defaultdict
 import sys
 import json
+# Using 'wait()' after each action to pause before returning to main menu
 
 def main():
-    ensure_csv_file()  #Ensures that the header and csv file exists
+    ensure_csv_file()  
     while True:
+        # Clear terminal screen
         os.system("cls" if os.name == "nt" else "clear")
+
         print("\nWelcome to expenses tracker!\n")
         print("1. Add a new expense")
         print("2. View all expenses")
@@ -50,8 +53,12 @@ def add_new_entry():
         return
     date = input("Date(Format:YYYY-MM-DD(Leave it empty to set the date to now):").strip()
     print("")
+
+    # Default to today's date if user leaves input empty
     if not date:
         date = datetime.now().strftime("%Y-%m-%d")
+
+    # Validate date format — prevents garbage from being written
     try:
         datetime.strptime(date,"%Y-%m-%d")
     except ValueError:
@@ -68,6 +75,7 @@ def add_new_entry():
 
 
 def ensure_csv_file():
+    # Create file and header only if it doesn't already exist
     filename = "expenses.csv"
     if not os.path.isfile(filename):
         with open(filename,mode="w",newline="") as file:
@@ -77,7 +85,9 @@ def ensure_csv_file():
 def view_all_expenses():
     with open("expenses.csv","r") as file:
         reader = csv.reader(file)
+        # Skip header row so it's not duplicated in data
         headers = next(reader)
+
         data = list(reader)
         if not data:
             print("No expenses to show")
@@ -86,6 +96,7 @@ def view_all_expenses():
     wait()
 
 def view_summary():
+    # User selects summary type; next few functions handles logic
     print("View Summary:\n")
     print("1. Total Expenses")
     print("2. Expense by category")
@@ -136,6 +147,7 @@ def delete_expense():
 
     with open("expenses.csv","r",newline="") as file:
             reader = list(csv.reader(file))
+
                 
     if choice ==  "1":
         if len(reader) > 1:
@@ -145,10 +157,12 @@ def delete_expense():
             wait()
         
     elif choice == "2":
+       # Read all rows into memory to allow deletion by index
        for index,row in enumerate(reader):
                 print(f"\nRow:{index} {row}")
        try:
             index = int(input("\nWhich row do you want do you want to delete? ").strip())
+            # Prevent deleting header or non-existent row
             if index >= len(reader) or index == 0:
                 print("Invalid row number(0 is a header)")
                 wait()
@@ -164,11 +178,15 @@ def delete_expense():
              
 
 def delete_row(choice,reader):
+
         choice = int(choice)
         deleted_row = reader[choice]
 
         with open("expenses.csv","w",newline="") as file:
             writer = csv.writer(file)
+
+           # Rewrite entire CSV file except the row being deleted
+
             for index,row in enumerate(reader):
                 if index != choice:
                     writer.writerow(row)
@@ -187,12 +205,15 @@ def export():
             return              
     export_filename = input("What do you want your filename as? ").strip() 
     source_file = "expenses.csv"
+
+    # Prevent accidental overwrite of existing export files
     if os.path.exists(export_filename + ".csv") or os.path.exists(export_filename + ".json"):
         overwrite = input("File exists. Overwrite? (y/n): ").strip().lower()
         if overwrite != "y":
             print("Cancelled export.")
             wait()
             return
+
     if  not export_filename.strip():
         print("Filename cannot be empty.")
         wait()
