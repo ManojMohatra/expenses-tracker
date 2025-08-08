@@ -34,7 +34,8 @@ This is the main Python script that contains the entire logic of the application
 - `export_json()` — Converts `expenses.csv` to a JSON file with proper formatting.
 - `wait()` — Pauses until the user presses a key, used after each action for better UX.
 
-**`expenses.csv`**  
+**`expenses.csv`** 
+
 The persistent data storage file for this program. It contains three columns:  
 `category`, `expense`, `date`. The first row is always the header.
 
